@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import RestaurantView
+from .views import RestaurantKpiView
 
 urlpatterns = [
-    path('restaurant', RestaurantView.as_view(), name='restaurant-view'),
+    path('restaurant', RestaurantKpiView.as_view(), name='restaurant-view'),
 ]
