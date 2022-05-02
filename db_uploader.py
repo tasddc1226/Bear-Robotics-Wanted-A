@@ -4,7 +4,8 @@ from datetime import datetime
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bear.settings")
 django.setup()
 
-from pos.models import *
+from kpi.models import *
+from restaurant.models import *
 
 CSV_PATH_POS_RESULT_DATA = './csv/bear_pos_example.csv'
 
@@ -12,7 +13,7 @@ with open(CSV_PATH_POS_RESULT_DATA) as in_file:
     data_reader = csv.reader(in_file)
     next(data_reader, None)
     for row in data_reader:
-        restaurant      = row[2]
+        restaurant = row[2]
         try:
             Restaurant.objects.create(id=restaurant)
         except:
@@ -31,5 +32,11 @@ with open(CSV_PATH_POS_RESULT_DATA) as in_file:
         number_of_party = row[4]
         payment         = row[5]
         
-        PosResultData.objects.create(timestamp=timestamp, restaurant_id=restaurant, price=price, number_of_party=number_of_party, payment=payment)
+        PosResultData.objects.create(
+            timestamp = timestamp,
+            restaurant_id = restaurant,
+            price = price,
+            number_of_party = number_of_party,
+            payment = payment
+        )
 
