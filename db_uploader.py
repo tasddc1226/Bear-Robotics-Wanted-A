@@ -1,60 +1,35 @@
 import os, django, csv, sys
 from datetime import datetime
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "madup.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bear.settings")
 django.setup()
 
-from ads.models import *
-from advertisers.models import *
+from pos.models import *
 
-CSV_PATH_ADS_advertiser_info = './csv/Madup_Wanted_Data_set(deleted).csv'
+CSV_PATH_POS_RESULT_DATA = './csv/bear_pos_example.csv'
 
-with open(CSV_PATH_ADS_advertiser_info) as in_file:
+with open(CSV_PATH_POS_RESULT_DATA) as in_file:
     data_reader = csv.reader(in_file)
     next(data_reader, None)
     for row in data_reader:
-        advertiser_id = row[0]
+        restaurant      = row[2]
         try:
-            advertiser_info.objects.create(advertiser_id = advertiser_id)
+            Restaurant.objects.create(id=restaurant)
         except:
             pass
 
-CSV_PATH_ADS_ad_info = './csv/Madup_Wanted_Data_set(deleted).csv'
-
-with open(CSV_PATH_ADS_ad_info) as in_file:
+with open(CSV_PATH_POS_RESULT_DATA) as in_file:
     data_reader = csv.reader(in_file)
     next(data_reader, None)
     for row in data_reader:
-        advertiser_id = row[0]
-        uid = row[1]
-        media = row[2]
-        try:
-            ad_info.objects.create(advertiser_id = advertiser_id, uid = uid, media = media)
-        except:
-            pass
+        # id              = row[0] 자동 생성이므로 추가 X
+        timestamp       = row[1]
+        date_format = '%Y-%m-%d %H:%M:%S'
+        timestamp = datetime.strptime(timestamp, date_format)
+        restaurant      = row[2]
+        price           = row[3]
+        number_of_party = row[4]
+        payment         = row[5]
+        
+        PosResultData.objects.create(timestamp=timestamp, restaurant_id=restaurant, price=price, number_of_party=number_of_party, payment=payment)
 
-CSV_PATH_ADS_result_data_set = './csv/Madup_Wanted_Data_set(deleted).csv'
-
-with open(CSV_PATH_ADS_result_data_set) as in_file:
-    data_reader = csv.reader(in_file)
-    next(data_reader, None)
-    for row in data_reader:
-        advertiser_id = row[0]
-        uid_id = row[1]
-        media = row[2]
-        ##date 포멧변경
-        date = row[3]
-        date_format = '%Y.%m.%d'
-        date = datetime.strptime(date, date_format)
-        date = date.date()
-        ###
-        cost = row[4]
-        impression = row[5]
-        click = row[6]
-        conversion = row[7]
-        cv = row[8]
-        try:
-            result_data_set.objects.create(advertiser_id = advertiser_id, uid_id = uid_id, media = media, date = date, 
-            cost = cost, impression = impression, click = click, conversion = conversion, cv = cv)
-        except:
-            print("입력실패")
