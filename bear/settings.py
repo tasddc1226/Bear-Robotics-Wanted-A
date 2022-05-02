@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     # local apps
     'kpi',
-    'pos',
+    'restaurant',
 ]
 
 MIDDLEWARE = [

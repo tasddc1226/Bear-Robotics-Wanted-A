@@ -1,4 +1,4 @@
-from .models import Restaurant
+from restaurant.models import Restaurant
 from .serializers import RestaurantSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView

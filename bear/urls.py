@@ -15,10 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-import kpi.urls, pos.urls
+import kpi.urls, restaurant.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/pos/', include(pos.urls)),
-    path('api/v1/pos/', include(kpi.urls)),
+    path('api/v1/restaurant/', include(restaurant.urls)),
+    path('api/v1/kpi/', include(kpi.urls)),
 ]

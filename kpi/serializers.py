@@ -1,4 +1,4 @@
-from .models import Restaurant
+from restaurant.models import Restaurant
 from rest_framework import serializers
 
 class RestaurantSerializer(serializers.ModelSerializer):

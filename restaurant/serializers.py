@@ -1,4 +1,4 @@
-from .models import PosResultData
+from kpi.models import PosResultData
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 

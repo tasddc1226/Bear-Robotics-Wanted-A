@@ -16,16 +16,17 @@ class Restaurant(TimeStamp):
     class Meta:
         db_table = 'restaurants'    
 
-class Group(models.Model):
-    restaurant = models.ForeignKey('Restaurant', on_delete=models.CASCADE)
-    menu = models.ForeignKey('Menu', on_delete=models.CASCADE)
+class RestaurantMenu(TimeStamp):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        db_table = 'menu'
+
+class RestaurantGroup(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    menu = models.ForeignKey(RestaurantMenu, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'groups'    
 
-class Menu(TimeStamp):
-    name = models.CharField(max_length=100)
-    price = models.DecimalField()
-
-    class Meta:
-        db_table = 'menu'
