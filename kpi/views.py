@@ -30,23 +30,21 @@ class RestaurantKpiView(APIView):
         # - start ~ end filter요소
         start_time = request.GET.get('start-time', None)
         if start_time is None :
-            return Response({"message":"start-time 쿼리를 입력하세요. \
-                            주의) 만약 2022-04-08일까지 확인하고 싶다면 2022-04-08 23:59:59를 입력하셔야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"start-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
         end_time = request.GET.get('end-time', None)
         if end_time is None :
             return Response({"message":"end-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
 
         # - date 바꾸는 format변환
-        time_format = '%Y-%m-%d %H:%M:%S'
+        time_format = '%Y-%m-%d'
         try:
             start_time = datetime.strptime(start_time, time_format)
         except:
-            return Response({"message":" start-time 입력형식은 YYYY-MM-DD hh:mm:ss 입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":" start-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
         try:
             end_time = datetime.strptime(end_time, time_format)
         except:
-            return Response({"message":" end-time 입력형식은 YYYY-MM-DD hh:mm:ss 입니다. \
-                            주의) 만약 2022-04-08일까지 확인하고 싶다면 2022-04-08 23:59:59를 입력하셔야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":" end-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
         # - filter 적용
         pos = pos.filter(timestamp__gte=start_time, timestamp__lte=end_time)
 
@@ -182,7 +180,74 @@ class RestaurantKpiView(APIView):
 
 class PaymentKpiView(APIView):
     def get(self, request, format=None):
+
+        """
+        <비교해보자>
+        1번문제
+
+
+
+        2번문제
+
+        """
         pos = PosResultData.objects.all()
+
+
+
+        '''
+        # [필수] filter 1) term
+        - start ~ end filter요소
+        - date 바꾸는 format변환
+        - filter 적용
+        '''
+        # - start ~ end filter요소
+        start_time = request.GET.get('start-time', None)
+        if start_time is None :
+            return Response({"message":"start-time 쿼리를 입력하세요. \
+                            주의) 만약 2022-04-08일까지 확인하고 싶다면 2022-04-08 23:59:59를 입력하셔야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        end_time = request.GET.get('end-time', None)
+        if end_time is None :
+            return Response({"message":"end-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # - date 바꾸는 format변환
+        time_format = '%Y-%m-%d'
+        try:
+            start_time = datetime.strptime(start_time, time_format)
+        except:
+            return Response({"message":" start-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            end_time = datetime.strptime(end_time, time_format)
+        except:
+            return Response({"message":" end-time 입력형식은 YYYY-MM-DD 입니다. \
+                            주의) 만약 2022-04-08일까지 확인하고 싶다면 2022-04-08 23:59:59를 입력하셔야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        # - filter 적용
+        pos = pos.filter(timestamp__gte=start_time, timestamp__lte=end_time)
+
+
+
+        '''
+        # [필수] Time window
+        '''
+        time_window_archive = ['HOUR', 'DAY', 'MONTH', 'YEAR']
+        time_window = request.GET.get('time-window', None)
+        if time_window is None :
+            return Response({"message":"time-window 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        if not time_window in time_window_archive:
+            return Response({"message":"time-window의 입력 인자는 'HOUR', 'DAY', 'MONTH', 'YEAR'중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if time_window == 'HOUR':
+            pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
+                                                .annotate(total_price=Sum('price')).values('term','total_price')
+        elif time_window == 'DAY':
+            pos = pos.annotate(term=TruncDay('timestamp')).values('term')\
+                                                .annotate(total_price=Sum('price')).values('term','total_price')
+        elif time_window == 'MONTH':
+            pos = pos.annotate(term=TruncMonth('timestamp')).values('term')\
+                                                .annotate(total_price=Sum('price')).values('term','total_price')
+        elif time_window == 'YEAR':
+            pos = pos.annotate(term=TruncYear('timestamp')).values('term')\
+                                                .annotate(total_price=Sum('price')).values('term','total_price')
+
         serializer = PaymentKpiSerializer
         return Response(serializer.data, status=status.HTTP_200_OK)
 
