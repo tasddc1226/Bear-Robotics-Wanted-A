@@ -10,14 +10,17 @@ class RestaurantKpiSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PosResultData
-        fields = ['term','total_price']
+        fields = ['term','total_price','restaurant_id']
         read_only_fields = []
 
 class PaymentKpiSerializer(serializers.ModelSerializer):
+    term = serializers.DateTimeField()
+    total_price = serializers.IntegerField()
+    count = serializers.IntegerField()
     
     class Meta:
         model = PosResultData
-        fileds = '__all__'
+        fields = ['term','total_price','restaurant_id','payment','count']
         read_only_fields = []
 
 class PartyNumberKpiSerializer(serializers.ModelSerializer):
