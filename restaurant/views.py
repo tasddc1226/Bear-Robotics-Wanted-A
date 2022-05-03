@@ -6,13 +6,17 @@ from .serializers import (
     RestaurantListSerializer, RestaurantDetailSerializer,
 )
 from django.shortcuts import get_list_or_404, get_object_or_404
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
 
 
+
 # PosData get, post
-class PosDataListView(APIView):
+class PosDataListView(GenericAPIView):
+    queryset = PosResultData.objects.all()
+    serializer_class = PosDataListSerializer
+
     def get(self, request, format=None):
         pos_data = get_list_or_404(PosResultData)
         serializer = PosDataListSerializer(pos_data, many=True)
@@ -25,7 +29,10 @@ class PosDataListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class PosDataDetailView(APIView):
+class PosDataDetailView(GenericAPIView):
+    queryset = PosResultData.objects.all()
+    serializer_class = PosDataDetailSerializer
+
     def get(self, request, pk, format=None):
         pos_data = get_object_or_404(PosResultData, pk=pk)
         serializer = PosDataDetailSerializer(pos_data)
@@ -33,7 +40,10 @@ class PosDataDetailView(APIView):
 
 # 개발용으로 만들어둔거
 # 레스토랑 데이타 get, post, update, delete
-class RestaurantListView(APIView):
+class RestaurantListView(GenericAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantListSerializer
+
     def get(self, request, format=None):
         restaurants = get_list_or_404(Restaurant)
         serializer = RestaurantListSerializer(restaurants, many=True)
@@ -46,14 +56,17 @@ class RestaurantListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class RestaurantDetailView(APIView):
+class RestaurantDetailView(GenericAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantDetailSerializer
+
     def get(self, request, pk, format=None):
         restaurant = get_object_or_404(Restaurant, pk=pk)
         serializer = RestaurantDetailSerializer(restaurant)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-    def put(self, request, pk, format=None):
-        restaurant = get_object_or_404(Restaurant, pk=pk)
+    def put(self, request, *args, **kwargs):
+        restaurant = get_object_or_404(Restaurant, pk=kwargs['pk'])
         serializer = RestaurantDetailSerializer(restaurant, data=request.data)
         if serializer.is_valid():
             serializer.save()
