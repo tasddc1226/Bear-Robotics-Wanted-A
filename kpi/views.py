@@ -1,4 +1,3 @@
-from datetime import datetime
 from restaurant.models import Restaurant, RestaurantGroup, RestaurantMenu
 from .models import PosResultData
 from .serializers import (
@@ -6,147 +5,117 @@ from .serializers import (
     PaymentKpiSerializer,
     PartyNumberKpiSerializer
 )
-from django.db.models import Avg, Max, Count, Q, F, Value, Sum
-from django.db.models.functions import TruncDate, TruncDay, TruncMonth, TruncYear, TruncHour, TruncWeek
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncDay, TruncMonth, TruncYear, TruncHour, TruncWeek
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 
 
+
 class RestaurantKpiView(APIView):
     """
-    1번문제. 현재 여기는 날코딩이라 추후에 함수로 빼내서 재사용 가능하게 만들 예정
+    A REST API to show KPI sales (price) per restaurant
+    Only GET method exsists.
     """
+
     def get(self, request, format=None):
+
+        # Get POS Data
         pos = PosResultData.objects.all()
 
-
-        '''
-        # [필수] filter 1) term
-        - start ~ end filter요소
-        - date 바꾸는 format변환
-        - filter 적용
-        '''
-        # - start ~ end filter요소
+        """
+        Filter 1. start_time to end_time [NECESSARY]
+        """
+        # Get query
         start_time = request.GET.get('start-time', None)
-        if start_time is None :
-            return Response({"message":"start-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
         end_time = request.GET.get('end-time', None)
-        if end_time is None :
-            return Response({"message":"end-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        RestaurantKpiSerializer.check_none_necessary_string(self, start_time, 'start-time')
+        RestaurantKpiSerializer.check_none_necessary_string(self, end_time, 'end-time')
 
-        # - date 바꾸는 format변환
-        time_format = '%Y-%m-%d'
-        try:
-            start_time = datetime.strptime(start_time, time_format)
-        except:
-            return Response({"message":" start-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            end_time = datetime.strptime(end_time, time_format)
-        except:
-            return Response({"message":" end-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        # - filter 적용
+        # Change date format
+        RestaurantKpiSerializer.change_format_to_datetime(self, start_time, 'start-time','%Y-%m-%d', 'YYYY-MM-DD')
+        RestaurantKpiSerializer.change_format_to_datetime(self, end_time, 'end-time' ,'%Y-%m-%d', 'YYYY-MM-DD')
+
+        # Apply filter
         pos = pos.filter(timestamp__gte=start_time, timestamp__lte=end_time)
 
-        '''
-        # [옵션] filter 2) price range
-        - 옵션조건
-        - start ~ end filter 요소
-        - integer인지 확인하는 요소
-        - integer요소는 start와 end의 대소비교
-        - filter 적용
-        '''
-
-        # - start ~ end filter 요소  + integer인지 확인하는 요소
+        """
+        Filter 2. start_price to end_price [OPTIONAL]
+        """
+        # Get query
         start_price = request.GET.get('start-price', None)
-        if start_price is not None :
-            try:
-                start_price = int(start_price)
-            except:
-                return Response({"message":"start-price는 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if start_price < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        end_price = request.GET.get('end-price', None)
 
-            end_price = request.GET.get('end-price', None)
-            if end_price is None :
-                return Response({"message":"end-price를 입력하세요. start-price를 입력했다면 함께 넣어야 하는 요소입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                end_price = int(end_price)
-            except:
-                return Response({"message":"end-price는 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if end_price < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        # Validate positive number optionally
+        if (start_price is not None) or (end_price is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
 
-            # - integer요소는 start와 end의 대소비교
-            if start_price > end_price:
-                return Response({"message":"start-price는 end-price보다 작아야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
 
-            # - filter 적용
+            # Apply filter
             pos = pos.filter(price__gte=start_price, price__lte=end_price)
 
-        '''
-        # [옵션] filter 3) number_of_party
-        - start ~ end filter 요소
-        - integer인지 확인하는 요소
-        - integer요소는 start와 end의 대소비교
-        - filter 적용
-        '''
+
+        """
+        Filter 3. number_of_party [OPTIONAL]
+        """
+        # Get query
         start_number_of_people = request.GET.get('start-number-of-people', None)
-        if start_number_of_people is not None :
-            try:
-                start_number_of_people = int(start_number_of_people)
-            except:
-                return Response({"message":"start-number-of-people은 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if start_number_of_people < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        end_number_of_people = request.GET.get('end-number-of-people', None)
 
-            end_number_of_people = request.GET.get('end-number-of-people', None)
-            if end_number_of_people is None :
-                return Response({"message":"end-number-of-people를 입력하세요. start-number-of-people를(을) 입력했다면 함께 넣어야 하는 요소입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                end_number_of_people = int(end_number_of_people)
-            except:
-                return Response({"message":"end-number-of-people은 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if end_number_of_people < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        if (start_number_of_people is not None) or (end_number_of_people is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
 
-            # - integer요소는 start와 end의 대소비교
-            if start_number_of_people > end_number_of_people:
-                return Response({"message":"start-number_of_people는 end-number_of_people보다 작아야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
 
-            # - filter 적용
+            #Apply filter
             pos = pos.filter(number_of_party__gte=start_number_of_people, number_of_party__lte=end_number_of_people)
 
-        '''
-        # [옵션] filter 4) restaurant_group
-        ### group_names는 RestaurantGroup에서 가져오는 코드가 필요하나 현재 모델에서 어려운듯? 모델 수정이 필요..!?!
-        - 쿼리 리스트 가져오기
-        - 쿼리 받아서 리스트와 비교하기
-        - 필터 적용하기
-        '''
-        # - 쿼리 받기
+
+        """
+        Filter 4. restaurant_group [OPTIONAL]
+        """
+        # Get query
         restaurant_group = request.GET.get('restaurant-group', None)
 
-        # - 비교할 리스트 가져오기
+        # [이슈 = models 수정 이후에 반영 예정] Get checklist
         group_name_list = ['비비고','빕스버거']
         
-        #  옵션조건이기에 None인지 확인한 후 리스트와 비교하기
+        # Compare query to checklist Optionally
         if restaurant_group is not None :
             if not restaurant_group in group_name_list:
                 return Response({"message":"restaurant-group의 입력 인자는 '비비고','빕스버거' 중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            #Apply filter
             search_group = Restaurant.objects.filter(restaurant_name=restaurant_group).values('id')
             pos = pos.filter(restaurant_id__in=search_group)
 
         '''
-        # [필수] Time window
+        Window : Aggregation Time window size
         '''
-        time_window_archive = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+        # Get query
         time_window = request.GET.get('time-window', None)
-        if time_window is None :
-            return Response({"message":"time-window 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate query
+        time_window_archive = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+        RestaurantKpiSerializer.check_none_necessary_string(self, time_window, 'time-window')
         if not time_window in time_window_archive:
             return Response({"message":"time-window의 입력 인자는 'HOUR','DAY','WEEK','MONTH','YEAR'중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Make time window
         if time_window == 'HOUR':
             pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
                                                 .annotate(total_price=Sum('price')).values('term','total_price','restaurant_id')
@@ -166,155 +135,109 @@ class RestaurantKpiView(APIView):
         serializer = RestaurantKpiSerializer(pos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# class Restaurant(TimeStamp):
-#     id = models.IntegerField(primary_key=True, unique=True)
-#     restaurant_name = models.CharField(max_length=80, null=False, blank=False)
-#     group = models.CharField(max_length=50, null=False, blank=False)
-#     city = models.CharField(max_length=50)
-#     address = models.CharField(max_length=100)
-
-# class PosResultData(TimeStamp):
-#     timestamp = models.DateTimeField()
-#     price = models.PositiveIntegerField(default=0)
-#     restaurant = models.ForeignKey(Restaurant, max_length=50, null=False, blank=False, on_delete=models.CASCADE)
-#     number_of_party = models.PositiveSmallIntegerField(default=0)
-#     payment = models.CharField(max_length=20, choices=PAYMENTS)
-
-
 class PaymentKpiView(APIView):
     """
-    현재 여기는 날코딩이라 추후에 함수로 빼내서 재사용 가능하게 만들 예정. 날짜 이름 문제는 나중에 해결할거임
+    A REST API to show KPI count of each payment method per restaurant
+    Only GET method exsists.
     """
+
     def get(self, request, format=None):
+
+        # Get POS Data
         pos = PosResultData.objects.all()
 
-        '''
-        # [필수] filter 1) term
-        - start ~ end filter요소
-        - date 바꾸는 format변환
-        - filter 적용
-        '''
-        # - start ~ end filter요소
+        """
+        Filter 1. start_time to end_time [NECESSARY]
+        """
+        # Get query
         start_time = request.GET.get('start-time', None)
-        if start_time is None :
-            return Response({"message":"start-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
         end_time = request.GET.get('end-time', None)
-        if end_time is None :
-            return Response({"message":"end-time 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        RestaurantKpiSerializer.check_none_necessary_string(self, start_time, 'start-time')
+        RestaurantKpiSerializer.check_none_necessary_string(self, end_time, 'end-time')
 
-        # - date 바꾸는 format변환
-        time_format = '%Y-%m-%d'
-        try:
-            start_time = datetime.strptime(start_time, time_format)
-        except:
-            return Response({"message":" start-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            end_time = datetime.strptime(end_time, time_format)
-        except:
-            return Response({"message":" end-time 입력형식은 YYYY-MM-DD 입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        # - filter 적용
+        # Change date format
+        RestaurantKpiSerializer.change_format_to_datetime(self, start_time, 'start-time','%Y-%m-%d', 'YYYY-MM-DD')
+        RestaurantKpiSerializer.change_format_to_datetime(self, end_time, 'end-time' ,'%Y-%m-%d', 'YYYY-MM-DD')
+
+        # Apply filter
         pos = pos.filter(timestamp__gte=start_time, timestamp__lte=end_time)
 
-        '''
-        # [옵션] filter 2) price range
-        - 옵션조건
-        - start ~ end filter 요소
-        - integer인지 확인하는 요소
-        - integer요소는 start와 end의 대소비교
-        - filter 적용
-        '''
-
-        # - start ~ end filter 요소  + integer인지 확인하는 요소
+        """
+        Filter 2. start_price to end_price [OPTIONAL]
+        """
+        # Get query
         start_price = request.GET.get('start-price', None)
-        if start_price is not None :
-            try:
-                start_price = int(start_price)
-            except:
-                return Response({"message":"start-price는 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if start_price < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        end_price = request.GET.get('end-price', None)
 
-            end_price = request.GET.get('end-price', None)
-            if end_price is None :
-                return Response({"message":"end-price를 입력하세요. start-price를 입력했다면 함께 넣어야 하는 요소입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                end_price = int(end_price)
-            except:
-                return Response({"message":"end-price는 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if end_price < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        # Validate positive number optionally
+        if (start_price is not None) or (end_price is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
 
-            # - integer요소는 start와 end의 대소비교
-            if start_price > end_price:
-                return Response({"message":"start-price는 end-price보다 작아야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
 
-            # - filter 적용
+            # Apply filter
             pos = pos.filter(price__gte=start_price, price__lte=end_price)
 
-        '''
-        # [옵션] filter 3) number_of_party
-        - start ~ end filter 요소
-        - integer인지 확인하는 요소
-        - integer요소는 start와 end의 대소비교
-        - filter 적용
-        '''
+
+        """
+        Filter 3. number_of_party [OPTIONAL]
+        """
+        # Get query
         start_number_of_people = request.GET.get('start-number-of-people', None)
-        if start_number_of_people is not None :
-            try:
-                start_number_of_people = int(start_number_of_people)
-            except:
-                return Response({"message":"start-number-of-people은 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if start_number_of_people < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        end_number_of_people = request.GET.get('end-number-of-people', None)
 
-            end_number_of_people = request.GET.get('end-number-of-people', None)
-            if end_number_of_people is None :
-                return Response({"message":"end-number-of-people를 입력하세요. start-number-of-people를(을) 입력했다면 함께 넣어야 하는 요소입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                end_number_of_people = int(end_number_of_people)
-            except:
-                return Response({"message":"end-number-of-people은 자연수를 입력하세요. "}, status=status.HTTP_400_BAD_REQUEST)
-            if end_number_of_people < 0:
-                return Response({"message":"숫자 0 이상 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        if (start_number_of_people is not None) or (end_number_of_people is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
 
-            # - integer요소는 start와 end의 대소비교
-            if start_number_of_people > end_number_of_people:
-                return Response({"message":"start-number_of_people는 end-number_of_people보다 작아야합니다."}, status=status.HTTP_400_BAD_REQUEST)
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
 
-            # - filter 적용
+            #Apply filter
             pos = pos.filter(number_of_party__gte=start_number_of_people, number_of_party__lte=end_number_of_people)
 
-        '''
-        # [옵션] filter 4) restaurant_group
-        ### group_names는 RestaurantGroup에서 가져오는 코드가 필요하나 현재 모델에서 어려운듯? 모델 수정이 필요..!?!
-        - 쿼리 리스트 가져오기
-        - 쿼리 받아서 리스트와 비교하기
-        - 필터 적용하기
-        '''
-        # - 쿼리 받기
+
+        """
+        Filter 4. restaurant_group [OPTIONAL]
+        """
+        # Get query
         restaurant_group = request.GET.get('restaurant-group', None)
 
-        # - 비교할 리스트 가져오기
+        # [이슈 = models 수정 이후에 반영 예정] Get checklist
         group_name_list = ['비비고','빕스버거']
         
-        #  옵션조건이기에 None인지 확인한 후 리스트와 비교하기
+        # Compare query to checklist Optionally
         if restaurant_group is not None :
             if not restaurant_group in group_name_list:
                 return Response({"message":"restaurant-group의 입력 인자는 '비비고','빕스버거' 중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            #Apply filter
             search_group = Restaurant.objects.filter(restaurant_name=restaurant_group).values('id')
             pos = pos.filter(restaurant_id__in=search_group)
 
         '''
-        # [필수] Time window
-        1번문제에서 이 부분만 바뀌는거임 위에부분은 복붙
+        Window : Aggregation Time window size
         '''
-        time_window_archive = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+        # Get query
         time_window = request.GET.get('time-window', None)
-        if time_window is None :
-            return Response({"message":"time-window 쿼리를 입력하세요."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate query
+        time_window_archive = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+        RestaurantKpiSerializer.check_none_necessary_string(self, time_window, 'time-window')
         if not time_window in time_window_archive:
-            return Response({"message":"time-window의 입력 인자는 'HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR'중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"time-window의 입력 인자는 'HOUR','DAY','WEEK','MONTH','YEAR'중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Make time window
         if time_window == 'HOUR':
             pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
                                                 .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
@@ -335,8 +258,125 @@ class PaymentKpiView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PartyNumberKpiView(APIView):
+    """
+    A REST API to show KPI count of each party size per restaurant
+    Only GET method exsists.
+    """
+
     def get(self, request, format=None):
+
+        # Get POS Data
         pos = PosResultData.objects.all()
-        serializer = PaymentKpiSerializer(pos, many=True)
+
+        """
+        Filter 1. start_time to end_time [NECESSARY]
+        """
+        # Get query
+        start_time = request.GET.get('start-time', None)
+        end_time = request.GET.get('end-time', None)
+        RestaurantKpiSerializer.check_none_necessary_string(self, start_time, 'start-time')
+        RestaurantKpiSerializer.check_none_necessary_string(self, end_time, 'end-time')
+
+        # Change date format
+        RestaurantKpiSerializer.change_format_to_datetime(self, start_time, 'start-time','%Y-%m-%d', 'YYYY-MM-DD')
+        RestaurantKpiSerializer.change_format_to_datetime(self, end_time, 'end-time' ,'%Y-%m-%d', 'YYYY-MM-DD')
+
+        # Apply filter
+        pos = pos.filter(timestamp__gte=start_time, timestamp__lte=end_time)
+
+        """
+        Filter 2. start_price to end_price [OPTIONAL]
+        """
+        # Get query
+        start_price = request.GET.get('start-price', None)
+        end_price = request.GET.get('end-price', None)
+
+        # Validate positive number optionally
+        if (start_price is not None) or (end_price is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
+
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
+
+            # Apply filter
+            pos = pos.filter(price__gte=start_price, price__lte=end_price)
+
+
+        """
+        Filter 3. number_of_party [OPTIONAL]
+        """
+        # Get query
+        start_number_of_people = request.GET.get('start-number-of-people', None)
+        end_number_of_people = request.GET.get('end-number-of-people', None)
+
+        if (start_number_of_people is not None) or (end_number_of_people is not None):
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            # None이 아니라면 0 이상인지 체크
+            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
+
+            #Compare size
+            RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
+
+            #Apply filter
+            pos = pos.filter(number_of_party__gte=start_number_of_people, number_of_party__lte=end_number_of_people)
+
+
+        """
+        Filter 4. restaurant_group [OPTIONAL]
+        """
+        # Get query
+        restaurant_group = request.GET.get('restaurant-group', None)
+
+        # [이슈 = models 수정 이후에 반영 예정] Get checklist
+        group_name_list = ['비비고','빕스버거']
+        
+        # Compare query to checklist Optionally
+        if restaurant_group is not None :
+            if not restaurant_group in group_name_list:
+                return Response({"message":"restaurant-group의 입력 인자는 '비비고','빕스버거' 중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            #Apply filter
+            search_group = Restaurant.objects.filter(restaurant_name=restaurant_group).values('id')
+            pos = pos.filter(restaurant_id__in=search_group)
+
+        '''
+        Window : Aggregation Time window size
+        '''
+        # Get query
+        time_window = request.GET.get('time-window', None)
+
+        # Validate query
+        time_window_archive = ['HOUR', 'DAY', 'WEEK', 'MONTH', 'YEAR']
+        RestaurantKpiSerializer.check_none_necessary_string(self, time_window, 'time-window')
+        if not time_window in time_window_archive:
+            return Response({"message":"time-window의 입력 인자는 'HOUR','DAY','WEEK','MONTH','YEAR'중의 하나입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Make time window
+        if time_window == 'HOUR':
+            pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
+                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+        elif time_window == 'DAY':
+            pos = pos.annotate(term=TruncDay('timestamp')).values('term')\
+                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+        elif time_window == 'WEEK':
+            pos = pos.annotate(term=TruncWeek('timestamp')).values('term')\
+                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+        elif time_window == 'MONTH':
+            pos = pos.annotate(term=TruncMonth('timestamp')).values('term')\
+                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+        elif time_window == 'YEAR':
+            pos = pos.annotate(term=TruncYear('timestamp')).values('term')\
+                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+        
+        serializer = PartyNumberKpiSerializer(pos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
