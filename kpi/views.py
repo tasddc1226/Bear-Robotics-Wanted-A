@@ -52,9 +52,11 @@ class RestaurantKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            start_price = int(start_price)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
+            end_price = int(end_price)
 
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
@@ -74,9 +76,11 @@ class RestaurantKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            start_number_of_people = int(start_number_of_people)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
+            end_number_of_people = int(end_number_of_people)
 
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
@@ -174,9 +178,11 @@ class PaymentKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            start_price = int(start_price)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
+            end_price = int(end_price)
 
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
@@ -196,9 +202,11 @@ class PaymentKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            start_number_of_people = int(start_number_of_people)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
+            end_number_of_people = int(end_number_of_people)
 
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
@@ -296,9 +304,11 @@ class PartyNumberKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_price, 'start-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_price, 'start-price')
+            start_price = int(start_price)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_price, 'end-price')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_price, 'end-price')
+            end_price = int(end_price)
 
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_price, end_price)
@@ -318,10 +328,11 @@ class PartyNumberKpiView(APIView):
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
+            start_number_of_people = int(start_number_of_people)
             # None이 아니라면 0 이상인지 체크
             RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
-
+            end_number_of_people = int(end_number_of_people)
             #Compare size
             RestaurantKpiSerializer.is_equal_or_larger_size(self, start_number_of_people, end_number_of_people)
 

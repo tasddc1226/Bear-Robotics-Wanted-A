@@ -59,7 +59,7 @@ class RestaurantKpiSerializer(serializers.ModelSerializer):
         두 번째 변수 : 큰 값
         """
         if large_val < small_val:
-            raise ValidationError(f"message':{large_val}은 {small_val}보다 같거나 커야 합니다.")
+            raise ValidationError(f"message':{large_val} >= {small_val} 조건을 만족해야 합니다.")
 
 class PaymentKpiSerializer(serializers.ModelSerializer):
     """
