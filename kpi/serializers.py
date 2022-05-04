@@ -66,12 +66,11 @@ class PaymentKpiSerializer(serializers.ModelSerializer):
     PaymentKpiView Serializer
     """
     term = serializers.DateTimeField()
-    total_price = serializers.IntegerField()
     count = serializers.IntegerField()
     
     class Meta:
         model = PosResultData
-        fields = ['term','total_price','restaurant_id','payment','count']
+        fields = ['term','restaurant_id','payment','count']
         read_only_fields = []
 
 class PartyNumberKpiSerializer(serializers.ModelSerializer):
@@ -83,6 +82,6 @@ class PartyNumberKpiSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PosResultData
-        fields = ['term','restaurant_id','count','number_of_party']
+        fields = ['term','restaurant_id','number_of_party','count']
         read_only_fields = []
 

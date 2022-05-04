@@ -248,19 +248,19 @@ class PaymentKpiView(APIView):
         # Make time window
         if time_window == 'HOUR':
             pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
-                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(count=Count('payment')).values('term','restaurant_id','payment','count')
         elif time_window == 'DAY':
             pos = pos.annotate(term=TruncDay('timestamp')).values('term')\
-                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(count=Count('payment')).values('term','restaurant_id','payment','count')
         elif time_window == 'WEEK':
             pos = pos.annotate(term=TruncWeek('timestamp')).values('term')\
-                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(count=Count('payment')).values('term','restaurant_id','payment','count')
         elif time_window == 'MONTH':
             pos = pos.annotate(term=TruncMonth('timestamp')).values('term')\
-                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(count=Count('payment')).values('term','restaurant_id','payment','count')
         elif time_window == 'YEAR':
             pos = pos.annotate(term=TruncYear('timestamp')).values('term')\
-                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(count=Count('payment')).values('term','restaurant_id','payment','count')
         
         serializer = PaymentKpiSerializer(pos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -373,19 +373,19 @@ class PartyNumberKpiView(APIView):
         # Make time window
         if time_window == 'HOUR':
             pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
-                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+                                                .annotate(count=Count('number_of_party')).values('term','restaurant_id','number_of_party','count')
         elif time_window == 'DAY':
             pos = pos.annotate(term=TruncDay('timestamp')).values('term')\
-                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+                                                .annotate(count=Count('number_of_party')).values('term','restaurant_id','number_of_party','count')
         elif time_window == 'WEEK':
             pos = pos.annotate(term=TruncWeek('timestamp')).values('term')\
-                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+                                                .annotate(count=Count('number_of_party')).values('term','restaurant_id','number_of_party','count')
         elif time_window == 'MONTH':
             pos = pos.annotate(term=TruncMonth('timestamp')).values('term')\
-                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+                                                .annotate(count=Count('number_of_party')).values('term','restaurant_id','number_of_party','count')
         elif time_window == 'YEAR':
             pos = pos.annotate(term=TruncYear('timestamp')).values('term')\
-                                                .annotate(count=Count('number_of_party')).values('term','number_of_party','count')
+                                                .annotate(count=Count('number_of_party')).values('term','restaurant_id','number_of_party','count')
         
         serializer = PartyNumberKpiSerializer(pos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
