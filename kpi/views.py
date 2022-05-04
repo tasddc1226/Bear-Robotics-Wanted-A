@@ -72,10 +72,10 @@ class RestaurantKpiView(APIView):
 
         if (start_number_of_people is not None) or (end_number_of_people is not None):
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
 
             #Compare size
@@ -194,10 +194,10 @@ class PaymentKpiView(APIView):
 
         if (start_number_of_people is not None) or (end_number_of_people is not None):
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
 
             #Compare size
@@ -240,19 +240,19 @@ class PaymentKpiView(APIView):
         # Make time window
         if time_window == 'HOUR':
             pos = pos.annotate(term=TruncHour('timestamp')).values('term')\
-                                                .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
         elif time_window == 'DAY':
             pos = pos.annotate(term=TruncDay('timestamp')).values('term')\
-                                                .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
         elif time_window == 'WEEK':
             pos = pos.annotate(term=TruncWeek('timestamp')).values('term')\
-                                                .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
         elif time_window == 'MONTH':
             pos = pos.annotate(term=TruncMonth('timestamp')).values('term')\
-                                                .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
         elif time_window == 'YEAR':
             pos = pos.annotate(term=TruncYear('timestamp')).values('term')\
-                                                .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
+                        .annotate(total_price=Sum('price'), count=Count('payment')).values('term','total_price','payment','count')
         
         serializer = PaymentKpiSerializer(pos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -316,10 +316,10 @@ class PartyNumberKpiView(APIView):
 
         if (start_number_of_people is not None) or (end_number_of_people is not None):
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, start_number_of_people, 'start-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, start_number_of_people, 'start-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, start_number_of_people, 'start-number_of_people')
             # None이 아니라면 0 이상인지 체크
-            RestaurantKpiSerializer.check_none_optional_string(self, end_number_of_people, 'end-number_of_people')
+            RestaurantKpiSerializer.check_none_necessary_string(self, end_number_of_people, 'end-number_of_people')
             RestaurantKpiSerializer.is_zero_or_more_numbers(self, end_number_of_people, 'end-number_of_people')
 
             #Compare size
