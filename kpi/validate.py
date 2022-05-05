@@ -1,7 +1,19 @@
 from rest_framework.exceptions import ValidationError
 from datetime import datetime
 
-def change_format_to_datetime(self, input_time, msg, time_format, input_exapmle):
+"""
+    Writer : 윤상민
+"""
+def check_none_necessary_string(var, msg):
+        '''
+        사용법
+        첫 번째 변수 : None인치 체크할 variable
+        두 번째 변수 : 쿼리명 string
+        '''
+        if (var is None) or (var is ''):
+            raise ValidationError(f"{msg} 쿼리를 입력하세요.")
+
+def change_format_to_datetime(input_time, msg, time_format, input_exapmle):
     """
     사용법
     첫 번째 변수 : 입력형식이 맞는지 확인하는 날짜 string
@@ -16,7 +28,7 @@ def change_format_to_datetime(self, input_time, msg, time_format, input_exapmle)
         raise ValidationError(f"{msg} 입력형식은 {input_exapmle} 입니다.")
 
 
-def is_zero_or_more_numbers(self, var, msg):
+def is_zero_or_more_numbers(var, msg):
     """
     사용법
     첫 번째 변수 : 0이상의 숫자인지 체크할 variable
@@ -30,7 +42,7 @@ def is_zero_or_more_numbers(self, var, msg):
         raise ValidationError(f"{msg}는 0 이상의 숫자 입력하세요.")
 
 
-def is_equal_or_larger_size(self, small_val, large_val):
+def is_equal_or_larger_size(small_val, large_val):
     """
     사용법
     첫 번째 변수 : 작은 값
