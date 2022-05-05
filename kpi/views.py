@@ -7,7 +7,7 @@ from .serializers import (
     PartyNumberKpiSerializer
 )
 from django.db.models import Count, Sum, Q, F
-from django.db.models.functions import TruncDay, TruncMonth, TruncYear, TruncHour, TruncWeek
+from django.db.models.functions import TruncDate, ExtractMonth, ExtractYear, ExtractHour, TruncWeek
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -56,11 +56,11 @@ class RestaurantKpiView(APIView):
         is_equal_or_larger_size(start_time, end_time)
 
         time_window_archive = {
-            'hour' : TruncHour('timestamp'),
-            'day'  : TruncDay('timestamp'),
+            'hour' : ExtractHour('timestamp'),
+            'day'  : TruncDate('timestamp'),
             'week' : TruncWeek('timestamp'),
-            'month': TruncMonth('timestamp'),
-            'year' : TruncYear('timestamp')
+            'month': ExtractMonth('timestamp'),
+            'year' : ExtractYear('timestamp')
         }
         
         # Validate time_window params
