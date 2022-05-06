@@ -10,16 +10,11 @@ class PosResultData(TimeStamp):
         ('3', 'PHONE'),
         ('4', 'BITCOIN')
         ]
-    # 결제 시각
-    timestamp = models.DateTimeField()
-    # 결제 금액
-    price = models.PositiveIntegerField(default=0)
-    # 결제 레스토랑 id
-    restaurant = models.ForeignKey(Restaurant, max_length=50, null=False, blank=False, on_delete=models.CASCADE)
-    # 파티원 수
-    number_of_party = models.PositiveSmallIntegerField(default=0)
-    # 결제 수단
-    payment = models.CharField(max_length=20, choices=PAYMENTS)
+    timestamp = models.DateTimeField(verbose_name="결제 시각")
+    price = models.PositiveIntegerField(verbose_name="결제 금액", default=0)
+    restaurant = models.ForeignKey(Restaurant, max_length=50, null=False, verbose_name="결제 레스토랑 id", blank=False, on_delete=models.CASCADE)
+    number_of_party = models.PositiveSmallIntegerField(verbose_name="파티원 수", default=0)
+    payment = models.CharField(max_length=20, verbose_name="결제 수단", choices=PAYMENTS)
 
     class Meta:
         db_table = 'pos_result_data'    
