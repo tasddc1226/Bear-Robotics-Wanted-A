@@ -3,11 +3,15 @@ from .models import Restaurant
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+
 class PosDataListSerializer(serializers.ModelSerializer):
+    """
+    Pos Data GET, POST
+    """
     class Meta:
         model = PosResultData
-        fields = '__all__'
-        read_only_fields = []
+        fields = ['id','timestamp','restaurant','price','number_of_party','payment','created_at','updated_at']
+        read_only_fields = ['id','created_at','updated_at']
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
@@ -20,12 +24,16 @@ class PosDataListSerializer(serializers.ModelSerializer):
             elif read_only_keys:
                 raise ValidationError(f"Got readOnly fields: {read_only_keys}")
         return attrs
+
 
 class PosDataDetailSerializer(serializers.ModelSerializer):
+    """
+    Pos Data detail GET
+    """
     class Meta:
         model = PosResultData
-        fields = '__all__'
-        read_only_fields = []
+        fields = ['id','timestamp','restaurant','price','number_of_party','payment','created_at','updated_at']
+        read_only_fields = ['created_at','updated_at','id']
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
@@ -39,12 +47,15 @@ class PosDataDetailSerializer(serializers.ModelSerializer):
                 raise ValidationError(f"Got readOnly fields: {read_only_keys}")
         return attrs
 
-# 레스토랑 시리얼라이져
+
 class RestaurantListSerializer(serializers.ModelSerializer):
+    """
+    Restaurant Data GET, POST
+    """
     class Meta:
         model = Restaurant
-        fields = '__all__'
-        read_only_fields = []
+        fields = ['id','restaurant_name','group','city','address','created_at','updated_at']
+        read_only_fields = ['created_at', 'updated_at']
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
@@ -57,12 +68,16 @@ class RestaurantListSerializer(serializers.ModelSerializer):
             elif read_only_keys:
                 raise ValidationError(f"Got readOnly fields: {read_only_keys}")
         return attrs
+
 
 class RestaurantDetailSerializer(serializers.ModelSerializer):
+    """
+    Restaurant Data detail GET, PUT, DELETE
+    """
     class Meta:
         model = Restaurant
-        fields = '__all__'
-        read_only_fields = []
+        fields = ['id','restaurant_name','group','city','address','created_at','updated_at']
+        read_only_fields = ['id','group','created_at','updated_at']
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):

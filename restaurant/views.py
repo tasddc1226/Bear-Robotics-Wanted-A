@@ -1,4 +1,3 @@
-from http.client import responses
 from kpi.models import PosResultData
 from .models import Restaurant
 from .serializers import (
@@ -11,9 +10,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-
-# PosData get, post
 class PosDataListView(GenericAPIView):
+    """
+    Pos 데이터의 리스트조회(GET), 입력(POST)
+    """
     queryset = PosResultData.objects.all()
     serializer_class = PosDataListSerializer
 
@@ -30,6 +30,9 @@ class PosDataListView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PosDataDetailView(GenericAPIView):
+    """
+    Pos데이터의 개별 조회(GET)
+    """
     queryset = PosResultData.objects.all()
     serializer_class = PosDataDetailSerializer
 
@@ -38,9 +41,11 @@ class PosDataDetailView(GenericAPIView):
         serializer = PosDataDetailSerializer(pos_data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# 개발용으로 만들어둔거
-# 레스토랑 데이타 get, post, update, delete
+
 class RestaurantListView(GenericAPIView):
+    """
+    Restaurant 테이블의 리스트조회(GET), 데이터 입력(POST)
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantListSerializer
 
@@ -57,6 +62,9 @@ class RestaurantListView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RestaurantDetailView(GenericAPIView):
+    """
+    Restaurant 테이블의 개별조회(GET), 수정(PUT), 삭제(DELETE)
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantDetailSerializer
 

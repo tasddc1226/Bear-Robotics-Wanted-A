@@ -1,72 +1,44 @@
-from datetime import datetime
 from .models import PosResultData
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
-
-class RestaurantKpiSerializer(serializers.ModelSerializer):
+class RestaurantKpiSerializer(serializers.Serializer):
     """
     RestaurantKpiView Serializer
     """
-    term = serializers.DateTimeField()
-    total_price = serializers.IntegerField()
+    start_time  = serializers.CharField(help_text='검색 시작 날짜', required=True)
+    end_time    = serializers.CharField(help_text='검색 종료 날짜', required=True)
+    time_window = serializers.CharField(help_text='검색 범위', required=True)
+    start_price = serializers.CharField(help_text='시작 가격', required=False)
+    end_price   = serializers.CharField(help_text='종료 가격', required=False)
+    start_number_of_people = serializers.CharField(help_text='시작 구성원 수', required=False)
+    end_number_of_people   = serializers.CharField(help_text='종료 구성원 수', required=False)
+    restaurant_group = serializers.CharField(help_text='레스토랑 그룹 번호', required=False)
 
     class Meta:
         model = PosResultData
-        fields = ['term','total_price','restaurant_id']
+        fields = (
+            "id",
+            "timestamp",
+            "restaurant",
+            "price",
+            "number_of_party",
+            "payment",
+        )
         read_only_fields = []
 
-    def check_none_necessary_string(self, var, msg):
-        '''
-        사용법
-        첫 번째 변수 : None인치 체크할 variable
-        두 번째 변수 : 쿼리명 string
-        '''
-        if var is None :
-            raise ValidationError(f"message':{msg} 쿼리를 입력하세요.")
-
-    def change_format_to_datetime(self, input_time, msg, time_format, input_exapmle):
-        """
-        사용법
-        첫 번째 변수 : 입력형식이 맞는지 확인하는 날짜 string
-        두 번째 변수 : query 이름 string
-        세 번째 변수 : 입력받고자 하는 날짜 포맷
-        네 번째 변수 : 입력해야 하는 날짜 string의 예시
-        """
-        try:
-            input_time = datetime.strptime(input_time, time_format)
-        except:
-            raise ValidationError(f"message': {msg} 입력형식은 {input_exapmle} 입니다.")
-
-            ##  is_integer
-    def is_zero_or_more_numbers(self, var, msg):
-        """
-        사용법
-        첫 번째 변수 : 0이상의 숫자인지 체크할 variable
-        두 번째 변수 : 쿼리명 string
-        """
-        try:
-            var = int(var)
-        except:
-            raise ValidationError(f"message':{msg}는 0 이상의 숫자 입력하세요.")
-        if var < 0:
-            raise ValidationError(f"message':{msg}는 0 이상의 숫자 입력하세요.")
-
-    def is_equal_or_larger_size(self, small_val, large_val):
-        """
-        사용법
-        첫 번째 변수 : 작은 값
-        두 번째 변수 : 큰 값
-        """
-        if large_val < small_val:
-            raise ValidationError(f"message':{large_val} >= {small_val} 조건을 만족해야 합니다.")
-
-class PaymentKpiSerializer(serializers.ModelSerializer):
+class PaymentKpiSerializer(serializers.Serializer):
     """
     PaymentKpiView Serializer
     """
-    term = serializers.DateTimeField()
-    count = serializers.IntegerField()
+    start_time  = serializers.CharField(help_text='검색 시작 날짜', required=True)
+    end_time    = serializers.CharField(help_text='검색 종료 날짜', required=True)
+    time_window = serializers.CharField(help_text='검색 범위', required=True)
+    start_price = serializers.CharField(help_text='시작 가격', required=False)
+    end_price   = serializers.CharField(help_text='종료 가격', required=False)
+    start_number_of_people = serializers.CharField(help_text='시작 구성원 수', required=False)
+    end_number_of_people   = serializers.CharField(help_text='종료 구성원 수', required=False)
+    restaurant_group = serializers.CharField(help_text='레스토랑 그룹 번호', required=False)
+    payment = serializers.CharField(help_text='결재 방법', required=True)
     
     class Meta:
         model = PosResultData
