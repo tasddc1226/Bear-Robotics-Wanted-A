@@ -16,7 +16,10 @@
 
 ## 🍝 서비스 개요
 - 레스토랑 프렌차이즈의 **비즈니스 KPI(핵심 성과 지표)** 데이터를 얻기 위한 플랫폼 서비스.
- 
+
+## 🤟 Swagger API
+- Link : https://app.swaggerhub.com/apis/redtea89/BearAteam1/1.0.0
+
 ## 📏  규칙
 - **RDB** : 관계형 데이터베이스
 - **Point Of Sale** : 판매 시점 관리
