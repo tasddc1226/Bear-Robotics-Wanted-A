@@ -87,7 +87,6 @@ class RestaurantKpiView(APIView):
 
         if (restaurant_group is not None):
             check_none_necessary_string(restaurant_group, 'restaurant_group')
-            is_zero_or_more_numbers(restaurant_group, 'restaurant_group')
             restaurant = Restaurant.objects.filter(group=restaurant_group).first()
             if not restaurant:
                 return Response(
