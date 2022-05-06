@@ -21,7 +21,7 @@ class RestaurantKpiView(APIView):
         Reviewer : 양수영
         Refactor : 윤상민, 양수영
     """
-    @swagger_auto_schema(tags=['데이터를 검색합니다.'], query_serializer=RestaurantKpiSerializer, responses={200: 'Success'})
+    @swagger_auto_schema(tags=[' KPI sales (price) per restaurant.'], query_serializer=RestaurantKpiSerializer, responses={200: 'Success'})
     def get(self, request):
         """
             A REST API to show KPI sales (price) per restaurant
@@ -30,20 +30,20 @@ class RestaurantKpiView(APIView):
         """
 
         """ [NECESSARY] query params """
-        start_time  = request.GET.get('start-time', None)
-        end_time    = request.GET.get('end-time', None)
-        time_window = request.GET.get('time-window', None)
+        start_time  = request.GET.get('start_time', None)
+        end_time    = request.GET.get('end_time', None)
+        time_window = request.GET.get('time_window', None)
 
         """ [OPTIONAL 1] query params """
-        start_price = request.GET.get('start-price', None)
-        end_price   = request.GET.get('end-price', None)
+        start_price = request.GET.get('start_price', None)
+        end_price   = request.GET.get('end_price', None)
 
         """ [OPTIONAL 2] query params """
-        start_number_of_people = request.GET.get('start-number-of-people', None)
-        end_number_of_people   = request.GET.get('end-number-of-people', None)
+        start_number_of_people = request.GET.get('start_number_of_people', None)
+        end_number_of_people   = request.GET.get('end_number_of_people', None)
 
         """ [OPTIONAL 3] query params """
-        restaurant_group = request.GET.get('restaurant-group', None)
+        restaurant_group = request.GET.get('restaurant_group', None)
 
         """ [OPTIONAL 4] query params """ # 결제 수단은 아래 쪽으로 이동
         payment = request.GET.get('payment', None)
@@ -53,8 +53,8 @@ class RestaurantKpiView(APIView):
         check_none_necessary_string(end_time, "end_time")
         
         # Change date format
-        start_time = change_format_to_datetime(start_time, 'start-time','%Y-%m-%d', 'YYYY-MM-DD')
-        end_time = change_format_to_datetime(end_time, 'end-time' ,'%Y-%m-%d', 'YYYY-MM-DD')
+        start_time = change_format_to_datetime(start_time, 'start_time','%Y-%m-%d', 'YYYY-MM-DD')
+        end_time = change_format_to_datetime(end_time, 'end_time' ,'%Y-%m-%d', 'YYYY-MM-DD')
         
         is_equal_or_larger_size(start_time, end_time)
 
@@ -67,7 +67,7 @@ class RestaurantKpiView(APIView):
         }
         
         # Validate time_window params
-        check_none_necessary_string(time_window, "time-window")
+        check_none_necessary_string(time_window, "time_window")
         if not time_window in time_window_archive:
             return Response(
                 {"message":"time-window의 입력 인자는 'HOUR','DAY','WEEK','MONTH','YEAR'중의 하나입니다."},
@@ -75,17 +75,17 @@ class RestaurantKpiView(APIView):
             )
 
         if (start_price is not None) or (end_price is not None):
-            check_none_necessary_string(start_price, 'start-price')
-            check_none_necessary_string(end_price, 'end-price')
-            is_zero_or_more_numbers(start_price, 'start-price')
-            is_zero_or_more_numbers(end_price, 'end-price')
+            check_none_necessary_string(start_price, 'start_price')
+            check_none_necessary_string(end_price, 'end_price')
+            is_zero_or_more_numbers(start_price, 'start_price')
+            is_zero_or_more_numbers(end_price, 'end_price')
             is_equal_or_larger_size(int(start_price), int(end_price))
 
         if (start_number_of_people is not None) or (end_number_of_people is not None):
-            check_none_necessary_string(start_number_of_people, 'start-number-of-people')
-            check_none_necessary_string(end_number_of_people, 'end-number-of-people')
-            is_zero_or_more_numbers(start_number_of_people, 'start-number-of-people')
-            is_zero_or_more_numbers(end_number_of_people, 'end-number-of-people')
+            check_none_necessary_string(start_number_of_people, 'start_number_of_people')
+            check_none_necessary_string(end_number_of_people, 'end_number_of_people')
+            is_zero_or_more_numbers(start_number_of_people, 'start_number_of_people')
+            is_zero_or_more_numbers(end_number_of_people, 'end_number_of_people')
             is_equal_or_larger_size(int(start_number_of_people), int(end_number_of_people))
 
         if (restaurant_group is not None):
