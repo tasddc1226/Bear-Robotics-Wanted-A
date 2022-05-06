@@ -2,23 +2,18 @@ from django.db import models
 from core.models import TimeStamp
 
 class Restaurant(TimeStamp):
-    # 레스토랑 id
-    id = models.IntegerField(primary_key=True, unique=True)
-    # 레스토랑 이름 
-    restaurant_name = models.CharField(max_length=80, null=False, blank=False)
-    # 그룹 번호
-    group = models.CharField(max_length=50, null=False, blank=False)
-    # 도시
-    city = models.CharField(max_length=50)
-    # 주소
-    address = models.CharField(max_length=100)
+    id = models.IntegerField(verbose_name="레스토랑 id", primary_key=True, unique=True)
+    restaurant_name = models.CharField(verbose_name="레스토랑 이름", max_length=80, null=False, blank=False)
+    group = models.CharField(verbose_name="프랜차이져 그룹 번호", max_length=50, null=False, blank=False)
+    city = models.CharField(verbose_name="도시명", max_length=50)
+    address = models.CharField(verbose_name="상세주소", max_length=100)
 
     class Meta:
         db_table = 'restaurants'    
 
 class RestaurantMenu(TimeStamp):
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(verbose_name="메뉴 이름", max_length=100)
+    price = models.DecimalField(verbose_name="메뉴 가격", max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = 'menu'
