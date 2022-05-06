@@ -67,7 +67,7 @@ class RestaurantKpiView(APIView):
         check_none_necessary_string(time_window, "time-window")
         if not time_window in time_window_archive:
             return Response(
-                {"message":"time-window의 입력 인자는 'HOUR','DAY','WEEK','MONTH','YEAR'중의 하나입니다."},
+                {"message":"time-window의 입력 인자는 'hour','day','week','month','year'중의 하나입니다."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
