@@ -13,13 +13,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from typing import Dict
 from .validate import *
+from drf_yasg.utils       import swagger_auto_schema
+
 class RestaurantKpiView(APIView):
     """
         Writer : 윤상민
         Reviewer : 양수영
         Refactor : 윤상민, 양수영
     """
-    def get(self, request, format=None):
+    @swagger_auto_schema(tags=['데이터를 검색합니다.'], query_serializer=RestaurantKpiSerializer, responses={200: 'Success'})
+    def get(self, request):
         """
             A REST API to show KPI sales (price) per restaurant
             Only GET method exsists.
