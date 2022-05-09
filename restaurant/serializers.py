@@ -15,7 +15,7 @@ class PosDataListSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
-            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys())
+            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys()) - set({'csrfmiddlewaretoken'})
             read_only_keys = set(self.initial_data.keys()) & set(getattr(self.Meta, 'read_only_fields', None))
             # Field에 없는 key를 입력하였을 때 에러메세지
             if unknown_keys:
@@ -59,7 +59,7 @@ class RestaurantListSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
-            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys())
+            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys()) - set({'csrfmiddlewaretoken'})
             read_only_keys = set(self.initial_data.keys()) & set(getattr(self.Meta, 'read_only_fields', None))
             # Field에 없는 key를 입력하였을 때 에러메세지
             if unknown_keys:
@@ -81,7 +81,7 @@ class RestaurantDetailSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if hasattr(self, 'initial_data'):
-            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys())
+            unknown_keys = set(self.initial_data.keys()) - set(self.fields.keys()) - set({'csrfmiddlewaretoken'})
             read_only_keys = set(self.initial_data.keys()) & set(getattr(self.Meta, 'read_only_fields', None))
             # Field에 없는 key를 입력하였을 때 에러메세지
             if unknown_keys:

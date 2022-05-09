@@ -1,5 +1,5 @@
 from datetime import timedelta
-from restaurant.models import Restaurant, RestaurantGroup, RestaurantMenu
+from restaurant.models import Restaurant
 from .models import PosResultData
 from .serializers import (
     RestaurantKpiSerializer,
@@ -7,13 +7,17 @@ from .serializers import (
     PartyNumberKpiSerializer
 )
 from django.db.models import Count, Sum, Q, F
-from django.db.models.functions import TruncDate, ExtractMonth, ExtractYear, ExtractHour, TruncWeek
+from django.db.models.functions import (
+    TruncDate, TruncWeek,
+    ExtractHour, ExtractDay, ExtractWeek ,ExtractMonth, ExtractYear,
+    
+)
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from typing import Dict
 from .validate import *
-from drf_yasg.utils       import swagger_auto_schema
+from drf_yasg.utils import swagger_auto_schema
 
 class RestaurantKpiView(APIView):
     """
@@ -26,7 +30,7 @@ class RestaurantKpiView(APIView):
         """
             A REST API to show KPI sales (price) per restaurant
             Only GET method exsists.
-            base url: http://127.0.0.1:8000/api/v1/kpi/restaurant
+            base url: /api/v1/kpi/restaurant
         """
 
         """ [NECESSARY] query params """
@@ -110,6 +114,7 @@ class RestaurantKpiView(APIView):
                                                 .annotate(date=time_window_archive[time_window]).values('date')\
                                                 .annotate(restaurant_id=F('restaurant'), total_price=Sum('price'))\
                                                 .values('date', 'restaurant_id', 'total_price')
+        # serializer = RestaurantKpiSerializer(result_data_set, many=True)
         return Response(result_data_set, status=status.HTTP_200_OK)
 
 class PaymentKpiView(APIView):
@@ -119,7 +124,7 @@ class PaymentKpiView(APIView):
         """
             A REST API to show KPI sales (price) per restaurant
             Only GET method exsists.
-            base url: http://127.0.0.1:8000/api/v1/kpi/payment
+            base url: /api/v1/kpi/payment
         """
 
         start_time  = request.GET.get('start_time', None)
@@ -142,8 +147,8 @@ class PaymentKpiView(APIView):
 
         time_window_archive = {
             'hour' : ExtractHour('timestamp'),
-            'day'  : TruncDate('timestamp'),
-            'week' : TruncWeek('timestamp'),
+            'day'  : ExtractDay('timestamp'),
+            'week' : ExtractWeek('timestamp'),
             'month': ExtractMonth('timestamp'),
             'year' : ExtractYear('timestamp')
         }
@@ -197,11 +202,44 @@ class PaymentKpiView(APIView):
         if payment:
             q &= Q(payment=payment)
 
-        result_data_set = PosResultData.objects.filter(q)\
-                                                .annotate(date=time_window_archive[time_window]).values('date')\
-                                                .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
-                                                .annotate(count=Count('payment'))\
-                                                .values('date', 'restaurant_id', 'payment', 'count')
+
+        if time_window == 'hour':
+            result_data_set = PosResultData.objects.filter(q)\
+                                        .annotate(hour=time_window_archive[time_window]).values('hour')\
+                                        .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
+                                        .annotate(count=Count('payment'))\
+                                        .values('hour', 'restaurant_id', 'payment', 'count')
+
+        elif time_window == 'day':
+            result_data_set = PosResultData.objects.filter(q)\
+                                        .annotate(day=time_window_archive[time_window]).values('day')\
+                                        .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
+                                        .annotate(count=Count('payment'))\
+                                        .values('day', 'restaurant_id', 'payment', 'count')
+
+        elif time_window == 'week':
+            result_data_set = PosResultData.objects.filter(q)\
+                                        .annotate(week=time_window_archive[time_window]).values('week')\
+                                        .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
+                                        .annotate(count=Count('payment'))\
+                                        .values('week', 'restaurant_id', 'payment', 'count')
+
+        elif time_window == 'month':
+            result_data_set = PosResultData.objects.filter(q)\
+                                        .annotate(month=time_window_archive[time_window]).values('month')\
+                                        .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
+                                        .annotate(count=Count('payment'))\
+                                        .values('month', 'restaurant_id', 'payment', 'count')
+
+        elif time_window == 'year':
+            result_data_set = PosResultData.objects.filter(q)\
+                                        .annotate(year=time_window_archive[time_window]).values('year')\
+                                        .annotate(restaurant_id=F('restaurant'), payment=F('payment'))\
+                                        .annotate(count=Count('payment'))\
+                                        .values('year', 'restaurant_id', 'payment', 'count')
+
+        
+
         return Response(result_data_set, status=status.HTTP_200_OK)
 
 class PartyNumberKpiView(APIView):
@@ -211,7 +249,7 @@ class PartyNumberKpiView(APIView):
         """
             A REST API to show KPI count of each party size per restaurant
             Only GET method exsists.
-            base url: http://127.0.0.1:8000/api/v1/kpi/partynumber
+            base url: /api/v1/kpi/partynumber
         """
 
         start_time  = request.GET.get('start_time', None)
@@ -233,8 +271,8 @@ class PartyNumberKpiView(APIView):
 
         time_window_archive = {
             'hour' : ExtractHour('timestamp'),
-            'day'  : TruncDate('timestamp'),
-            'week' : TruncWeek('timestamp'),
+            'day'  : ExtractDay('timestamp'),
+            'week' : ExtractWeek('timestamp'),
             'month': ExtractMonth('timestamp'),
             'year' : ExtractYear('timestamp')
         }
@@ -281,10 +319,41 @@ class PartyNumberKpiView(APIView):
         if restaurant_group:
             q &= Q(restaurant__group=restaurant_group)
 
-        result_data_set = PosResultData.objects.filter(q)\
-                                                .annotate(date=time_window_archive[time_window]).values('date')\
-                                                .annotate(restaurant_id=F('restaurant'))\
-                                                .annotate(number_of_party=F('number_of_party'))\
-                                                .annotate(count=Count('number_of_party'))\
-                                                .values('date', 'restaurant_id', 'number_of_party', 'count')
+
+        if time_window == 'hour':
+            result_data_set = PosResultData.objects.filter(q)\
+                                                    .annotate(hour=time_window_archive[time_window]).values('hour')\
+                                                    .annotate(restaurant_id=F('restaurant'))\
+                                                    .annotate(number_of_party=F('number_of_party'))\
+                                                    .annotate(count=Count('number_of_party'))\
+                                                    .values('hour', 'restaurant_id', 'number_of_party', 'count')
+        elif time_window == 'day':
+            result_data_set = PosResultData.objects.filter(q)\
+                                                    .annotate(day=time_window_archive[time_window]).values('day')\
+                                                    .annotate(restaurant_id=F('restaurant'))\
+                                                    .annotate(number_of_party=F('number_of_party'))\
+                                                    .annotate(count=Count('number_of_party'))\
+                                                    .values('day', 'restaurant_id', 'number_of_party', 'count')     
+        elif time_window == 'week':
+            result_data_set = PosResultData.objects.filter(q)\
+                                                    .annotate(week=time_window_archive[time_window]).values('week')\
+                                                    .annotate(restaurant_id=F('restaurant'))\
+                                                    .annotate(number_of_party=F('number_of_party'))\
+                                                    .annotate(count=Count('number_of_party'))\
+                                                    .values('week', 'restaurant_id', 'number_of_party', 'count')   
+        elif time_window == 'month':
+            result_data_set = PosResultData.objects.filter(q)\
+                                                    .annotate(month=time_window_archive[time_window]).values('month')\
+                                                    .annotate(restaurant_id=F('restaurant'))\
+                                                    .annotate(number_of_party=F('number_of_party'))\
+                                                    .annotate(count=Count('number_of_party'))\
+                                                    .values('month', 'restaurant_id', 'number_of_party', 'count')   
+        elif time_window == 'year':
+            result_data_set = PosResultData.objects.filter(q)\
+                                                    .annotate(year=time_window_archive[time_window]).values('year')\
+                                                    .annotate(restaurant_id=F('restaurant'))\
+                                                    .annotate(number_of_party=F('number_of_party'))\
+                                                    .annotate(count=Count('number_of_party'))\
+                                                    .values('year', 'restaurant_id', 'number_of_party', 'count')          
+            
         return Response(result_data_set, status=status.HTTP_200_OK)
