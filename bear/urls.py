@@ -22,7 +22,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 schema_url_patterns = [
-    path('api/v1/restaurant/', include(restaurant.urls)),
+    path('api/v1/restaurants/', include(restaurant.urls)),
     path('api/v1/kpi/', include(kpi.urls)),
 ]
 
@@ -40,7 +40,7 @@ schema_view_v1 = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/restaurant/', include(restaurant.urls)),
+    path('api/v1/restaurants/', include(restaurant.urls)),
     path('api/v1/kpi/', include(kpi.urls)),
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view_v1.without_ui(cache_timeout=0), name='schema-json'),
     url(r'^swagger/$', schema_view_v1.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
