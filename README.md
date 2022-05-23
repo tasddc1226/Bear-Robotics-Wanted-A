@@ -73,18 +73,18 @@
 ## Path Variable
 |Method|Request|URL|
 |:-:|:--|:--|
-|POST|POS 데이터 생성 |http://127.0.0.1:8000/api/v1/restaurant/pos|
-|GET|POS 데이터 목록 조회 |http://127.0.0.1:8000/api/v1/restaurant/pos|
-|GET|POS 데이터 정보 상세 조회|http://127.0.0.1:8000/api/v1/restaurant/pos/{id}|
-|POST|레스토랑 데이터 생성 |http://127.0.0.1:8000/api/v1/restaurant/restaurants|
-|GET|레스토랑 목록 조회 |http://127.0.0.1:8000/api/v1/restaurant/restaurants|
-|GET|레스토랑 정보 상세 조회 |http://127.0.0.1:8000/api/v1/restaurant/restaurants/{id}|
-|PUT|레스토랑 정보 수정 |http://127.0.0.1:8000/api/v1/restaurant/restaurants/{id}|
-|DELETE|레스토랑 정보 삭제 |http://127.0.0.1:8000/api/v1/restaurant/restaurants/{id}|
+|POST|POS 데이터 생성 |/api/v1/restaurants/pos|
+|GET|POS 데이터 목록 조회 |/api/v1/restaurants/pos|
+|GET|POS 데이터 정보 상세 조회|/api/v1/restaurants/pos/{id}|
+|POST|레스토랑 데이터 생성 |/api/v1/restaurants|
+|GET|레스토랑 목록 조회 |/api/v1/restaurants|
+|GET|레스토랑 정보 상세 조회 |/api/v1/restaurants/{id}|
+|PUT|레스토랑 정보 수정 |/api/v1/restaurants/{id}|
+|DELETE|레스토랑 정보 삭제 |/api/v1/restaurants/{id}|
 
 ## Query Parameter
 |Method|Request|URL|
 |:-:|:--|:--|
-|GET|레스토랑별 매출 KPI 조회|http://127.0.0.1:8000/api/v1/kpi/restaurant?|
-|GET|레스토랑 매출의 결제 수단별 집계 KPI|http://127.0.0.1:8000/api/v1/kpi/payment?|
-|GET|레스토랑 이용 인원 규모별 집계 KPI|http://127.0.0.1:8000/api/v1/kpi/partynumber?|
+|GET|레스토랑별 매출 KPI 조회|/api/v1/kpi/restaurant?|
+|GET|레스토랑 매출의 결제 수단별 집계 KPI|/api/v1/kpi/payment?|
+|GET|레스토랑 이용 인원 규모별 집계 KPI|/api/v1/kpi/partynumber?|
