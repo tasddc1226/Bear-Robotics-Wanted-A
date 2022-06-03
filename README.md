@@ -1,5 +1,6 @@
 ## 👩‍💻 Team
 - **[양수영](https://github.com/tasddc1226)**
+    - [프로젝트 회고 및 느낀점](https://tasddc.tistory.com/139) 
 - **[권은경](https://github.com/fore0919)**
 - **[윤상민](https://github.com/redtea89)**
 
